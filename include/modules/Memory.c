@@ -1,8 +1,8 @@
-#include <blocks.h>
+#include <modules.h>
 #include <stdio.h>
 #include <string.h>
 
-int blk_mem(char *value) {
+int module_memory(char *value) {
   char *line;
   FILE *proc;
   size_t len = 0;

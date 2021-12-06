@@ -1,4 +1,13 @@
-include config.mk
+NAME=xdstatus
+BUILDDIR=./bin
+
+BIN=$(BUILDDIR)/$(NAME)
+PREFIX=/usr/local
+BINPREFIX=$(PREFIX)/bin
+
+INCLUDE=./include
+LIBS=-lX11 -lpthread -lm
+CFLAGS=-pedantic -Wall
 
 build: clean include.o
 	mkdir -p $(BUILDDIR)
@@ -8,7 +17,7 @@ run: build
 	$(BUILDDIR)/$(NAME)
 
 include.o:
-	$(CC) $(CFLAGS) -I$(INCLUDE) -c $(INCLUDE)/*.c $(INCLUDE)/blocks/*.c
+	$(CC) $(CFLAGS) -I$(INCLUDE) -c $(INCLUDE)/*.c $(INCLUDE)/**/*.c
 
 .PHONY: clean
 clean:

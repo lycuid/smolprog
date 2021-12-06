@@ -1,29 +1,33 @@
-#include <blocks.h>
+#include <modules.h>
 
-#define SEPERATOR_COLOR "#171717"
-#define SEPERATOR SEPERATOR_COLOR ":2"
 #define BORDER "#089CAC"
+#define SEPERATOR_COLOR "#171717"
 
-static Block blks[] = {
-    {.runner = blk_net,
+#define SEPERATOR "<Box:Left=" SEPERATOR_COLOR ":2> </Box>"
+
+static Module mods[] = {
+    {.runner = module_network,
      .def = "No Internet.",
-     .fmt = "<BtnL=xdotool key super+ctrl+n> %s  </BtnL><BoxL=" SEPERATOR
-            "> </BoxL>"},
-    {.runner = blk_cpu,
+     .fmt = "<BtnL=xdotool key super+ctrl+n> %s  </BtnL>" SEPERATOR},
+    {.runner = module_cpu,
      .def = "cpu: ?",
-     .fmt = "<BtnL=notify_max_cpu> %s  </BtnL><BoxL=" SEPERATOR "> </BoxL>"},
-    {.runner = blk_mem,
+     .fmt = "<BtnL=notify_max_cpu> %s  </BtnL>" SEPERATOR},
+    {.runner = module_memory,
      .def = "mem: ?",
-     .fmt = "<BtnL=notify_max_mem> %s  </BtnL><BoxL=" SEPERATOR "> </BoxL>"},
-    {.pipefile = pipe_vol,
+     .fmt = "<BtnL=notify_max_mem> %s  </BtnL>" SEPERATOR},
+    {.runner = module_volume,
+     .runnertype = FifoRunner,
      .def = "vol: ?",
      .fmt = "<ScrlU:Shift=volume 5%+><ScrlD:Shift=volume "
             "5%-><ScrlU=volume 1%+><ScrlD=volume "
             "1%-><BtnL=volume toggle> "
-            "%s  </BtnL></ScrlD></ScrlU></ScrlD></ScrlU><BoxL=" SEPERATOR
-            "> </BoxL>"},
-    {.runner = blk_bat, .def = "battery: ?", .fmt = " %s  "},
-    {.runner = blk_dat,
+            "%s  </BtnL></ScrlD></ScrlU></ScrlD></ScrlU>" SEPERATOR},
+    {.runner = module_tmuxls,
+     .def = "sessions: ?",
+     .fmt = "<BtnL=notify_tmux_ls> %s  </BtnL>" SEPERATOR},
+    {.runner = module_battery, .def = "battery: ?", .fmt = " %s  "},
+    {.runner = module_date,
      .def = "date: ? ",
-     .fmt = "<BoxT=" BORDER "><BoxB=" BORDER "><BoxL=" BORDER "><BoxR=" BORDER
-            "><Bg=" SEPERATOR_COLOR "> %s </Bg></BoxR></BoxL></BoxB></BoxT>"}};
+     .fmt = "<Box:Top=" BORDER "><Box:Bottom=" BORDER "><Box:Left=" BORDER
+            "><Box:Right=" BORDER "><Bg=" SEPERATOR_COLOR
+            "><Fn=1> %s </Fn></Bg></Box></Box></Box></Box>"}};

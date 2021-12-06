@@ -1,4 +1,4 @@
-#include "../utils.h"
+#include <utils.h>
 #include <dirent.h>
 #include <errno.h>
 #include <math.h>
@@ -10,7 +10,7 @@ static char pnetbytes[2][16] = {"0", "0"};
 
 int strsubtract(char *, char *);
 
-int blk_net(char *value) {
+int module_network(char *value) {
   char srx[16], stx[16], rxfile[100], txfile[100], interfacefile[100],
       interfacestate[20];
 

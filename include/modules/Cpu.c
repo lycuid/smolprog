@@ -1,10 +1,10 @@
-#include <blocks.h>
+#include <modules.h>
 #include <stdio.h>
 #include <utils.h>
 
 static long double pcpu[7] = {0, 0, 0, 0, 0, 0, 0};
 
-int blk_cpu(char *value) {
+int module_cpu(char *value) {
   long long cpu[7], used, total, prev_total = 0, new_total = 0;
 
   if (fpscanf("/proc/stat", "%*s %lld %lld %lld %lld %lld %lld %lld", &cpu[0],
