@@ -1,27 +1,21 @@
 NAME=xdstatus
-BUILDDIR=./bin
-
-BIN=$(BUILDDIR)/$(NAME)
+BIN=./target/release/$(NAME)
 PREFIX=/usr/local
 BINPREFIX=$(PREFIX)/bin
 
-INCLUDE=./include
-LIBS=-lX11 -lpthread -lm
-CFLAGS=-pedantic -Wall
+build: fmt clean
+	cargo build --release $(ARGS)
 
-build: clean include.o
-	mkdir -p $(BUILDDIR)
-	$(CC) $(CFLAGS) $(LIBS) -I$(INCLUDE) -o $(BIN) $(NAME).c *.o
+run: fmt
+	cargo run $(ARGS)
 
-run: build
-	$(BUILDDIR)/$(NAME)
-
-include.o:
-	$(CC) $(CFLAGS) -I$(INCLUDE) -c $(INCLUDE)/*.c $(INCLUDE)/**/*.c
+.PHONY: fmt
+fmt:
+	cargo fmt
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILDDIR) *.o
+	cargo clean
 
 install: $(BIN)
 	mkdir -p $(DESTDIR)$(BINPREFIX)
