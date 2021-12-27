@@ -1,5 +1,5 @@
-use super::{Block, ValueRunner};
-use std::{fs::read_to_string, sync::Arc};
+use super::{Logger, ValueRunner};
+use std::fs::read_to_string;
 
 const BAT_SYM_LEN: usize = 5;
 
@@ -8,11 +8,13 @@ struct BatteryRunner {
     batsym: [&'static str; BAT_SYM_LEN],
 }
 
-impl ValueRunner for BatteryRunner {
-    fn fmt_value(&mut self, string: String) -> String {
+impl BatteryRunner {
+    fn fmt_value(string: String) -> String {
         format!(" {}  ", string)
     }
+}
 
+impl ValueRunner for BatteryRunner {
     fn get_value(&mut self) -> Option<String> {
         let capacity_str =
             read_to_string("/sys/class/power_supply/BAT0/capacity").ok()?;
@@ -20,7 +22,6 @@ impl ValueRunner for BatteryRunner {
 
         let status_str =
             read_to_string("/sys/class/power_supply/BAT0/status").ok()?;
-
         let status = status_str.lines().next()?;
 
         let sym = match status {
@@ -28,17 +29,17 @@ impl ValueRunner for BatteryRunner {
             "Discharging" => self.batsym[capacity * BAT_SYM_LEN / 100],
             _ => self.batsym.iter().last()?,
         };
-
         self.batindex = (self.batindex + 1) % BAT_SYM_LEN;
-        Some(format!("{} {:3}%", sym, capacity))
+
+        Some(Self::fmt_value(format!("{} {:3}%", sym, capacity)))
     }
 }
 
-pub fn create_battery_blk() -> Block {
-    Block::Value {
-        default_value: "battery: ?",
+pub fn create_battery_logger() -> Logger {
+    Logger::ValueLogger {
+        default_value: BatteryRunner::fmt_value("battery: ?".into()),
         interval_ms: 1000,
-        create_runner: Arc::new(|| {
+        create_runner: Box::new(|| {
             Box::new(BatteryRunner {
                 batindex: 0,
                 batsym: [" ", " ", " ", " ", " "],

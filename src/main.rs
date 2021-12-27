@@ -1,117 +1,79 @@
-mod blocks;
-#[cfg(feature = "x11")]
-mod xlib;
-#[cfg(feature = "x11")]
-use std::{ffi::CString, ptr};
+mod loggers;
 
-use blocks::{createblks, Block};
+use loggers::{create_loggers, Logger};
 use std::{
     fs,
-    sync::{mpsc, Arc},
+    io::{self, Write},
+    sync::mpsc,
     thread,
     time::Duration,
 };
 
 fn spawn_thread(
     index: usize,
-    blk: &Block,
+    logger: Logger,
     sender: mpsc::Sender<(usize, String)>,
 ) -> thread::JoinHandle<()> {
-    match &blk {
-        Block::Value {
+    match logger {
+        Logger::ValueLogger {
             default_value,
             interval_ms,
             create_runner,
-        } => {
-            let def = default_value.to_string();
-            let delay = interval_ms.clone();
-            let create_runner_func = Arc::clone(&create_runner);
+        } => thread::spawn(move || {
+            let mut runner = create_runner();
+            sender.send((index, default_value.clone())).unwrap();
 
-            thread::spawn(move || {
-                let mut runner = create_runner_func();
-                sender.send((index, runner.fmt_value(def.clone()))).unwrap();
+            loop {
+                let value = runner.get_value().unwrap_or(default_value.clone());
+                sender.send((index, value)).unwrap();
+                thread::sleep(Duration::from_millis(interval_ms));
+            }
+        }),
 
-                loop {
-                    let value = runner.get_value().unwrap_or(def.clone());
-                    sender.send((index, runner.fmt_value(value))).unwrap();
-                    thread::sleep(Duration::from_millis(delay));
-                }
-            })
-        }
-
-        Block::Fifo {
+        Logger::FifoLogger {
             default_value,
             fifopath,
             create_runner,
-        } => {
-            let def = default_value.to_string();
-            let fifo = fifopath.clone();
-            let create_runner_func = Arc::clone(&create_runner);
+        } => thread::spawn(move || {
+            let mut runner = create_runner();
+            let fmt_defvalue = runner.fmt_value(&default_value);
+            sender.send((index, fmt_defvalue.clone())).unwrap();
 
-            thread::spawn(move || {
-                let mut runner = create_runner_func();
-                let defvalue = runner.fmt_value(def);
-                sender.send((index, defvalue.clone())).unwrap();
-
-                loop {
-                    if let Some(ref fpath) = fifo {
-                        fs::read_to_string(fpath)
-                            .and_then(|data| {
-                                let value =
-                                    data.lines().next().unwrap().to_string();
-                                Ok(sender
-                                    .send((index, runner.fmt_value(value)))
-                                    .unwrap())
-                            })
-                            .unwrap();
-                    } else {
-                        sender.send((index, defvalue.clone())).unwrap();
-                    }
-                    thread::sleep(Duration::from_millis(25));
+            loop {
+                if let Ok(data) = fs::read_to_string(&fifopath) {
+                    let line = data.lines().next().unwrap_or(&default_value);
+                    sender.send((index, runner.fmt_value(line))).unwrap();
+                } else {
+                    sender.send((index, fmt_defvalue.clone())).unwrap();
                 }
-            })
-        }
+                thread::sleep(Duration::from_millis(25));
+            }
+        }),
     }
 }
 
-fn main() {
+fn main() -> io::Result<()> {
     let (tx, rx) = mpsc::channel();
-    let blks = createblks();
-    let mut values = vec![String::new(); blks.len()];
+    let loggers = create_loggers();
+    let mut values = vec![String::new(); loggers.len()];
 
-    let handles: Vec<thread::JoinHandle<()>> = blks
+    let handles: Vec<thread::JoinHandle<()>> = loggers
         .into_iter()
         .enumerate()
-        .map(|(i, t)| spawn_thread(i, &t, tx.clone()))
+        .map(|(i, t)| spawn_thread(i, t, tx.clone()))
         .collect();
 
-    #[cfg(feature = "x11")]
-    let (dpy, root) = unsafe {
-        let dpy = xlib::XOpenDisplay(ptr::null());
-        (dpy, xlib::XDefaultRootWindow(dpy))
-    };
-
+    let mut stdout = io::stdout();
     while let Ok((index, string)) = rx.recv() {
         values[index] = string;
         let value = values.join("");
-
-        #[cfg(feature = "x11")]
-        unsafe {
-            let wm_name = CString::new(value.clone()).unwrap();
-            xlib::XStoreName(dpy, root, wm_name.as_ptr());
-            xlib::XFlush(dpy);
-        };
-
-        #[cfg(not(feature = "x11"))]
-        println!("{}", value);
+        writeln!(stdout, "{}", value)?;
+        stdout.flush()?;
     }
-
-    #[cfg(feature = "x11")]
-    unsafe {
-        xlib::XCloseDisplay(dpy)
-    };
 
     for handle in handles {
         handle.join().unwrap();
     }
+
+    Ok(())
 }

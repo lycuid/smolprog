@@ -1,23 +1,24 @@
-use super::{Block, ValueRunner};
+use super::{Logger, ValueRunner};
 use std::{
     convert::TryInto,
     fs::File,
     io::{BufRead, BufReader},
-    sync::Arc,
 };
 
 struct CpuRunner {
     previous: [u64; 7],
 }
 
-impl ValueRunner for CpuRunner {
-    fn fmt_value(&mut self, string: String) -> String {
+impl CpuRunner {
+    fn fmt_value(string: String) -> String {
         format!(
             "<BtnL=notify_max_cpu> {}  </BtnL><Box:Left=#171717:2> </Box>",
             string
         )
     }
+}
 
+impl ValueRunner for CpuRunner {
     fn get_value(&mut self) -> Option<String> {
         let file = File::open("/proc/stat").ok()?;
         let mut line = String::new();
@@ -41,19 +42,21 @@ impl ValueRunner for CpuRunner {
         self.previous = cpu.try_into().unwrap();
 
         let percentage = (100 * used) / total;
-        match percentage {
-            0..=25 => Some(format!("  {:2}%", percentage)),
-            26..=65 => Some(format!("  <Fg=#ffdd59>{:2}</Fg>%", percentage)),
-            66..=100 => Some(format!("  <Fg=#cc6666>{:2}</Fg>%", percentage)),
+        let result = match percentage {
+            0..=25 => Some(format!("  {:3}%", percentage)),
+            26..=65 => Some(format!("  <Fg=#ffdd59>{:3}</Fg>%", percentage)),
+            66..=100 => Some(format!("  <Fg=#cc6666>{:3}</Fg>%", percentage)),
             _ => None,
-        }
+        };
+
+        result.map(Self::fmt_value)
     }
 }
 
-pub fn create_cpu_blk() -> Block {
-    Block::Value {
-        default_value: "cpu: ?",
+pub fn create_cpu_logger() -> Logger {
+    Logger::ValueLogger {
+        default_value: CpuRunner::fmt_value("cpu: ?".into()),
         interval_ms: 1000,
-        create_runner: Arc::new(|| Box::new(CpuRunner { previous: [0; 7] })),
+        create_runner: Box::new(|| Box::new(CpuRunner { previous: [0; 7] })),
     }
 }

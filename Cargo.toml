@@ -1,11 +1,18 @@
 [package]
-name = "xdstatus"
+name = "smolprog"
 version = "0.1.0"
 edition = "2021"
 
 [features]
-x11 = []
-defaults = []
+date = []
+battery = []
+cpu = []
+memory = []
+network = []
+sessions = []
+volume = []
+
+default = ["date"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

@@ -1,9 +1,8 @@
-use super::{Block, ValueRunner};
+use super::{Logger, ValueRunner};
 use std::{
     fs::{self, File},
     io::prelude::*,
     path::PathBuf,
-    sync::Arc,
 };
 
 struct NetworkRunner {
@@ -11,10 +10,12 @@ struct NetworkRunner {
     previous_tx: f32,
 }
 
-impl NetworkRunner {}
-
 impl NetworkRunner {
-    pub fn get_active_interface() -> Option<String> {
+    fn fmt_value(string: String) -> String {
+        format!("<BtnL=xdotool key super+ctrl+n> {}  </BtnL><Box:Left=#171717:2> </Box>", string)
+    }
+
+    fn get_active_interface() -> Option<String> {
         fs::read_dir("/sys/class/net/")
             .ok()?
             .map(|entry| entry.unwrap().path())
@@ -33,7 +34,7 @@ impl NetworkRunner {
             .next()
     }
 
-    pub fn get_bytes() -> Option<(f32, f32)> {
+    fn get_network_bytes() -> Option<(f32, f32)> {
         let active_interface = Self::get_active_interface()?;
 
         let stats = PathBuf::from("/sys/class/net/")
@@ -49,13 +50,9 @@ impl NetworkRunner {
 }
 
 impl ValueRunner for NetworkRunner {
-    fn fmt_value(&mut self, string: String) -> String {
-        format!("<BtnL=xdotool key super+ctrl+n> {}  </BtnL><Box:Left=#171717:2> </Box>", string)
-    }
-
     fn get_value(&mut self) -> Option<String> {
         let active_interface = Self::get_active_interface()?;
-        let (new_rx, new_tx) = Self::get_bytes()?;
+        let (new_rx, new_tx) = Self::get_network_bytes()?;
 
         let rx = (new_rx - self.previous_rx) / 1024.;
         let tx = (new_tx - self.previous_tx) / 1024.;
@@ -63,22 +60,23 @@ impl ValueRunner for NetworkRunner {
         self.previous_rx = new_rx;
         self.previous_tx = new_tx;
 
-        Some(format!(
+        Some(Self::fmt_value(format!(
             "{}:  {:.2} KiB/s  {:.2} KiB/s",
             active_interface, rx, tx
-        ))
+        )))
     }
 }
 
-pub fn create_network_blk() -> Block {
-    Block::Value {
-        default_value: "net: ?",
+pub fn create_network_logger() -> Logger {
+    Logger::ValueLogger {
+        default_value: NetworkRunner::fmt_value("net: ?".into()),
         interval_ms: 1000,
-        create_runner: Arc::new(|| {
-            let (previous_rx, previous_tx) = match NetworkRunner::get_bytes() {
-                Some(bytes) => bytes,
-                None => (0., 0.),
-            };
+        create_runner: Box::new(|| {
+            let (previous_rx, previous_tx) =
+                match NetworkRunner::get_network_bytes() {
+                    Some(bytes) => bytes,
+                    None => (0., 0.),
+                };
 
             Box::new(NetworkRunner {
                 previous_rx,
