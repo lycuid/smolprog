@@ -1,3 +1,4 @@
+//! Logs cpu usage.
 use super::{Logger, ValueRunner};
 use std::{
     convert::TryInto,
@@ -31,25 +32,26 @@ impl ValueRunner for CpuRunner {
             .map(|n| n.parse().unwrap())
             .collect();
 
-        let new_total: u64 = cpu.iter().sum();
-        let prev_total: u64 = self.previous.iter().sum();
-        let total = new_total - prev_total;
-
-        let new_used: u64 = cpu.iter().take(3).sum();
-        let prev_used: u64 = self.previous.iter().take(3).sum();
-        let used = new_used - prev_used;
-
+        let total = {
+            let new_total: u64 = cpu.iter().sum();
+            let prev_total: u64 = self.previous.iter().sum();
+            new_total - prev_total
+        };
+        let used = {
+            let new_used: u64 = cpu.iter().take(3).sum();
+            let prev_used: u64 = self.previous.iter().take(3).sum();
+            new_used - prev_used
+        };
         self.previous = cpu.try_into().unwrap();
 
-        let percentage = (100 * used) / total;
-        let result = match percentage {
-            0..=25 => Some(format!("  {:3}%", percentage)),
-            26..=65 => Some(format!("  <Fg=#ffdd59>{:3}</Fg>%", percentage)),
-            66..=100 => Some(format!("  <Fg=#cc6666>{:3}</Fg>%", percentage)),
-            _ => None,
-        };
-
-        result.map(Self::fmt_value)
+        Some((100 * used) / total)
+            .and_then(|percent| match percent {
+                0..=25 => Some(format!("  {:3}%", percent)),
+                26..=65 => Some(format!("  <Fg=#ffdd59>{:3}</Fg>%", percent)),
+                66..=100 => Some(format!("  <Fg=#cc6666>{:3}</Fg>%", percent)),
+                _ => None,
+            })
+            .map(Self::fmt_value)
     }
 }
 

@@ -1,18 +1,18 @@
 [package]
 name = "smolprog"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [features]
-date = []
 battery = []
 cpu = []
+date = []
 memory = []
 network = []
 sessions = []
 volume = []
 
-default = ["date"]
+default = ["battery", "cpu", "date", "memory", "network", "sessions", "volume"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

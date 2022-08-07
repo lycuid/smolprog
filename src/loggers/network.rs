@@ -1,3 +1,4 @@
+//! Logs network usage.
 use super::{Logger, ValueRunner};
 use std::{
     fs::{self, File},

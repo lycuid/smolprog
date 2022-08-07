@@ -1,3 +1,4 @@
+//! Logs memory usage.
 use super::{Logger, ValueRunner};
 use std::process::Command;
 
@@ -25,19 +26,18 @@ impl ValueRunner for MemoryRunner {
             .map(|c| c.parse().unwrap())
             .collect();
 
-        // (used + shared) >> 10
-        let total: u64 = (mem[1] + mem[3]) >> 10;
-        let result = match total {
-            0 => None,
-            1..=500 => Some(format!("  {:4} MiB", total)),
-            501..=1000 => Some(format!("  <Fg=#ffdd59>{:4}</Fg> MiB", total)),
-            1001.. => Some(format!(
-                "  <Fg=#cc6666>{:.2}</Fg> GiB",
-                total as f64 / 1024f64
-            )),
-        };
-
-        result.map(Self::fmt_value)
+        // total = (used + shared) / 1024
+        Some((mem[1] + mem[3]) >> 10)
+            .and_then(|t| match t {
+                0 => None,
+                1..=500 => Some(format!("  {:4} MiB", t)),
+                501..=1000 => Some(format!("  <Fg=#ffdd59>{:4}</Fg> MiB", t)),
+                1001.. => Some(format!(
+                    "  <Fg=#cc6666>{:.2}</Fg> GiB",
+                    t as f64 / 1024.
+                )),
+            })
+            .map(Self::fmt_value)
     }
 }
 

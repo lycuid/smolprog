@@ -1,3 +1,4 @@
+//! Logs date and time.
 use super::{Logger, ValueRunner};
 use std::process::Command;
 
@@ -8,7 +9,12 @@ struct DateRunner;
 
 impl DateRunner {
     fn fmt_value(string: String) -> String {
-        format!("<Box:Top={border}><Box:Bottom={border}><Box:Left={border}><Box:Right={border}><Bg={background}><Fn=1> {text} </Fn></Bg></Box></Box></Box></Box>", border = BORDER, background = BACKGROUND, text = string)
+        format!(
+            "<Box:Top|Bottom|Left|Right={border}><Bg={background}><Fn=1> {text} </Fn></Bg></Box>",
+            border = BORDER,
+            background = BACKGROUND,
+            text = string
+        )
     }
 }
 

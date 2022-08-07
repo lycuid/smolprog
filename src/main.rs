@@ -66,14 +66,11 @@ fn main() -> io::Result<()> {
     let mut stdout = io::stdout();
     while let Ok((index, string)) = rx.recv() {
         values[index] = string;
-        let value = values.join("");
-        writeln!(stdout, "{}", value)?;
+        stdout.write(values.join("").as_bytes())?;
         stdout.flush()?;
     }
 
-    for handle in handles {
+    Ok(for handle in handles {
         handle.join().unwrap();
-    }
-
-    Ok(())
+    })
 }

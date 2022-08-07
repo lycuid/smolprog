@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 #[cfg(feature = "battery")]
 mod battery;
 #[cfg(feature = "cpu")]
@@ -24,11 +22,13 @@ pub trait FifoRunner {
 }
 
 pub enum Logger {
+    /// Used for interval based logging (log on every interval).
     ValueLogger {
         default_value: String,
         interval_ms: u64,
         create_runner: Box<dyn Fn() -> Box<dyn ValueRunner> + Send + Sync>,
     },
+    /// Used for logging from 'fifo' file (log as soon as content updates).
     FifoLogger {
         default_value: String,
         fifopath: String,

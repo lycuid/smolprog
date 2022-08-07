@@ -1,3 +1,4 @@
+//! Logs number of active tmux sessions.
 use super::{Logger, ValueRunner};
 use std::process::Command;
 
