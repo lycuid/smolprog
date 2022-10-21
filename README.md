@@ -8,5 +8,5 @@ This program runs different procedures (***logger***) in seperate threads and ou
 I personally use this to set the `WM_NAME` attribute of the root X11 window, which is then read and displayed by my statusbar: [xdbar](https://github.com/lycuid/xdbar/) (similar to [dwm's](https://dwm.suckless.org/) statusbar).  
 Example:
 ```sh
-guile -l main.scm -e "(smolprog)" | xargs -i xsetroot -name {}
+src/main.scm | xargs -i xsetroot -name {}
 ```

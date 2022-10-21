@@ -1,7 +1,7 @@
 (define-module (logger cpu)
                #:use-module ((srfi srfi-1)  #:prefix iter:)
                #:use-module ((ice-9 format) #:select (format))
-               #:use-module (utils))
+               #:use-module ((utils)        #:select (first-line-of call-and-set! in-range? words)))
 
 (define-public interval 1)
 (define-public runner
@@ -10,8 +10,8 @@
        "<BtnL=notify_max_cpu> ~a  </BtnL><Box:Left=#171717:2> </Box>"
        (calculate))))
 
-(define old-total 0)
-(define old-used  0)
+(define *old-total* 0)
+(define *old-used*  0)
 
 (define calculate
   (λ ()
@@ -29,6 +29,6 @@
             [vals       (cdr (words line))]
             [new-total  (apply + (map string->number (iter:take vals 7)))]
             [new-used   (apply + (map string->number (iter:take vals 3)))]
-            [total      (call-and-set! - (new-total -> old-total))]
-            [used       (call-and-set! - (new-used  -> old-used))])
+            [total      (call-and-set! - (new-total -> *old-total*))]
+            [used       (call-and-set! - (new-used  -> *old-used*))])
        (quotient (* used 100) (if (<= total 0) 1 total)))))

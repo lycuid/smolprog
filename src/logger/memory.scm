@@ -3,7 +3,7 @@
                #:use-module ((ice-9 popen)  #:select (open-input-pipe close-pipe))
                #:use-module ((ice-9 match)  #:select (match))
                #:use-module ((ice-9 rdelim) #:select (read-line))
-               #:use-module (utils))
+               #:use-module ((utils)        #:select (in-range? starts-with? words)))
 
 (define-public interval 1)
 (define-public runner

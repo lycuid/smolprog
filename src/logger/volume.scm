@@ -1,7 +1,7 @@
 (define-module (logger volume))
 
-(define-public default "vol: ?")
-(define-public fifo-path (string-append (getenv "XDG_RUNTIME_DIR") "/pipe/volume"))
+(define-public default    "vol: ?")
+(define-public fifo-file  (string-append (getenv "XDG_RUNTIME_DIR") "/pipe/volume"))
 (define-public fmt "~
 <ScrlU:Shift=volume 5%+>~
   <ScrlD:Shift=volume 5%->~
