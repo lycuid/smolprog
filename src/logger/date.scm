@@ -1,4 +1,5 @@
 (define-module (logger date)
+               #:use-module ((ice-9 format) #:select (format))
                #:use-module (srfi srfi-19))
 
 (define-public interval 1)

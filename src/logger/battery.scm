@@ -25,5 +25,5 @@
        (cond
          [(string=? "Charging"    status) (vector-ref *battery-symbols* index)]
          [(string=? "Discharging" status) (vector-ref *battery-symbols*
-                                                      (quotient (* capacity sym-len) 100))]
+                                                      (quotient (* capacity sym-len) 101))]
          [#t                              (vector-ref *battery-symbols* (- sym-len 1))]))))

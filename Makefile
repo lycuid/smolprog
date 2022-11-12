@@ -1,6 +1,6 @@
 IDIR:=src
 ODIR:=.build
-MAIN:=$(ODIR)/run
+# order matters (should be in load order).
 SRCS:=$(IDIR)/utils.scm                 \
       $(IDIR)/logger/battery.scm        \
       $(IDIR)/logger/cpu.scm            \
@@ -11,27 +11,24 @@ SRCS:=$(IDIR)/utils.scm                 \
       $(IDIR)/logger/volume.scm         \
       $(IDIR)/main.scm
 OBJS:=$(SRCS:$(IDIR)/%=$(ODIR)/%.go)
-LOAD_OBJS:=$(OBJS:$(ODIR)/%=(primitive-load-path "%"))
+LOAD_COMPILED:=(primitive-load-path "%")
+GUILE_FLAGS:=-O3 -Wunbound-variable -Wformat -Warity-mismatch
 
-$(MAIN): $(OBJS)
-	@echo "[+] writing shell script to load and exec compiled guile object files."
-	@echo "#!/bin/sh"                                            >  $@
-	@echo "exec guile -e '(smolprog)' -C \$$(dirname \$$0) -c '" >> $@
-	@echo '$(LOAD_OBJS)' | sed -rn 's/\)\s/\)\n/pg'              >> $@
-	@echo "'"                                                    >> $@
-	@chmod 755 $@
+build: $(OBJS)
+
+run: build
+	@guile -e '(smolprog)' -C . -c '$(OBJS:%=$(LOAD_COMPILED))'
 
 $(ODIR)/%.scm.go: $(IDIR)/%.scm
-	guild compile -O3 -L $(IDIR) -o $@ $^
+	guild compile $(GUILE_FLAGS) -L $(IDIR) -o $@ $^
 
 .PHONY: install
 install:
-	cp -Tfr $(ODIR) $$SCRIPTS/smolprog
+	cp -Tfr $(ODIR) $(GUILE_LOAD_COMPILED_PATH)/smolprog
 
 .PHONY: uninstall
 uninstall:
-	rm -rf $$SCRIPTS/smolprog
+	rm -rf $(GUILE_LOAD_COMPILED_PATH)/smolprog
 
 .PHONY: clean run
 clean: ; rm -rf $(ODIR)
-run: $(MAIN); $(MAIN)

@@ -31,4 +31,4 @@
             [new-used   (apply + (map string->number (iter:take vals 3)))]
             [total      (call-and-set! - (new-total -> *old-total*))]
             [used       (call-and-set! - (new-used  -> *old-used*))])
-       (quotient (* used 100) (if (<= total 0) 1 total)))))
+       (quotient (* used 100) (max 1 total)))))

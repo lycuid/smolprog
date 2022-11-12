@@ -6,6 +6,7 @@ exec guile -L $(dirname $0) -e "(smolprog)" $0 $@
 
 (use-modules ((ice-9 atomic))
              ((ice-9 threads))
+             ((ice-9 format)  #:select (format))
              ((srfi srfi-43)  #:select (vector-map))
              ((srfi srfi-1)   #:select (fold-right))
              ((srfi srfi-18)  #:select (time->seconds seconds->time current-time thread-sleep!))

@@ -2,7 +2,7 @@
                #:use-module ((srfi srfi-1)  #:select  (remove))
                #:use-module ((ice-9 ports)  #:select  (call-with-input-file))
                #:use-module ((ice-9 rdelim) #:select  (read-line))
-               #:export     (call-and-set!))
+               #:export     (call-and-set! set-all!))
 
 (define-public words
   (λ (xs)
@@ -20,6 +20,15 @@
   (λ (x lower upper)
      (and (>= x lower) (<= x upper))))
 
-(define-syntax-rule (call-and-set! proc (new -> old))
-  (let ([value (proc new old)])
-    (begin (set! old new) value)))
+(define-syntax call-and-set!
+  (syntax-rules (->)
+    ((_ proc (new -> old))
+     (let ([value (proc new old)])
+       (begin (set! old new) value)))))
+
+(define-syntax set-all!
+  (syntax-rules ()
+    ((_ (old new))
+     (set! old new))
+    ((_ (old new) expr ...)
+     (begin (set-all! (old new)) (set-all! expr ...)))))

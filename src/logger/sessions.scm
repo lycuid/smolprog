@@ -1,4 +1,5 @@
 (define-module (logger sessions)
+               #:use-module ((ice-9 format) #:select (format))
                #:use-module ((ice-9 popen)  #:select (open-input-pipe close-pipe))
                #:use-module ((ice-9 rdelim) #:select (read-line)))
 
