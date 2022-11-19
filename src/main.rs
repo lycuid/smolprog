@@ -9,42 +9,33 @@ use std::{
     time::Duration,
 };
 
-fn spawn_thread(
-    index: usize,
-    logger: Logger,
-    sender: mpsc::Sender<(usize, String)>,
-) -> thread::JoinHandle<()> {
+type ThreadPayload = (usize, Logger, mpsc::Sender<(usize, String)>);
+
+fn spawn_thread(payload: ThreadPayload) -> thread::JoinHandle<()> {
+    let (id, logger, sender) = payload;
     match logger {
         Logger::ValueLogger {
-            default_value,
             interval_ms,
-            create_runner,
-        } => thread::spawn(move || {
-            let mut runner = create_runner();
-            sender.send((index, default_value.clone())).unwrap();
-
-            loop {
-                let value = runner.get_value().unwrap_or(default_value.clone());
-                sender.send((index, value)).unwrap();
-                thread::sleep(Duration::from_millis(interval_ms));
-            }
+            mut runner,
+        } => thread::spawn(move || loop {
+            sender.send((id, runner.get_value())).unwrap();
+            thread::sleep(Duration::from_millis(interval_ms));
         }),
 
         Logger::FifoLogger {
             default_value,
             fifopath,
-            create_runner,
+            mut runner,
         } => thread::spawn(move || {
-            let mut runner = create_runner();
             let fmt_defvalue = runner.fmt_value(&default_value);
-            sender.send((index, fmt_defvalue.clone())).unwrap();
+            sender.send((id, fmt_defvalue.clone())).unwrap();
 
             loop {
                 if let Ok(data) = fs::read_to_string(&fifopath) {
                     let line = data.lines().next().unwrap_or(&default_value);
-                    sender.send((index, runner.fmt_value(line))).unwrap();
+                    sender.send((id, runner.fmt_value(line))).unwrap();
                 } else {
-                    sender.send((index, fmt_defvalue.clone())).unwrap();
+                    sender.send((id, fmt_defvalue.clone())).unwrap();
                 }
                 thread::sleep(Duration::from_millis(25));
             }
@@ -57,23 +48,25 @@ fn main() -> io::Result<()> {
     let loggers = create_loggers();
     let mut values = vec![String::new(); loggers.len()];
 
-    let handles: Vec<thread::JoinHandle<()>> = loggers
+    let threads: Vec<thread::JoinHandle<()>> = loggers
         .into_iter()
         .enumerate()
-        .map(|(i, t)| spawn_thread(i, t, tx.clone()))
+        .map(|(i, l)| spawn_thread((i, l, tx.clone())))
         .collect();
 
     let mut stdout = io::stdout();
     while let Ok((index, string)) = rx.recv() {
-        if values[index] != string {
-            values[index] = string;
+        if let Some(block) = values.get_mut(index) {
+            if *block != string {
+                *block = string;
+                stdout.write(values.join("").as_bytes())?;
+                stdout.write("\n".as_bytes())?;
+                stdout.flush()?;
+            }
         }
-        stdout.write(values.join("").as_bytes())?;
-        stdout.write("\n".as_bytes())?;
-        stdout.flush()?;
     }
 
-    Ok(for handle in handles {
-        handle.join().unwrap();
+    Ok(for thread in threads {
+        thread.join().unwrap()
     })
 }

@@ -11,10 +11,8 @@ impl SessionRunner {
             string
         )
     }
-}
 
-impl ValueRunner for SessionRunner {
-    fn get_value(&mut self) -> Option<String> {
+    fn calculate(&mut self) -> Option<String> {
         Command::new("tmux")
             .arg("ls")
             .output()
@@ -25,10 +23,17 @@ impl ValueRunner for SessionRunner {
     }
 }
 
+impl ValueRunner for SessionRunner {
+    fn get_value(&mut self) -> String {
+        self.calculate()
+            .or_else(|| Some(SessionRunner::fmt_value("sessions: ?".into())))
+            .unwrap()
+    }
+}
+
 pub fn create_session_logger() -> Logger {
     Logger::ValueLogger {
-        default_value: SessionRunner::fmt_value("sessions: ?".into()),
         interval_ms: 1000,
-        create_runner: Box::new(|| Box::new(SessionRunner {})),
+        runner: Box::new(SessionRunner {}),
     }
 }

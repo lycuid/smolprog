@@ -47,10 +47,8 @@ impl NetworkRunner {
             fs::read_to_string(txfile).ok()?.trim_end().parse().ok()?,
         ))
     }
-}
 
-impl ValueRunner for NetworkRunner {
-    fn get_value(&mut self) -> Option<String> {
+    fn calculate(&mut self) -> Option<String> {
         let interface = Self::get_active_interface()?;
         let (new_rx, new_tx) = Self::get_network_bytes(&interface)?;
 
@@ -73,24 +71,28 @@ impl ValueRunner for NetworkRunner {
     }
 }
 
-pub fn create_network_logger() -> Logger {
-    Logger::ValueLogger {
-        default_value: NetworkRunner::fmt_value("net: ?".into()),
-        interval_ms: 1000,
-        create_runner: Box::new(|| {
-            let previous_interface =
-                NetworkRunner::get_active_interface().unwrap();
-            let (previous_rx, previous_tx) =
-                match NetworkRunner::get_network_bytes(&previous_interface) {
-                    Some(bytes) => bytes,
-                    None => (0., 0.),
-                };
+impl ValueRunner for NetworkRunner {
+    fn get_value(&mut self) -> String {
+        self.calculate()
+            .or_else(|| Some(NetworkRunner::fmt_value("net: ?".into())))
+            .unwrap()
+    }
+}
 
-            Box::new(NetworkRunner {
-                previous_interface,
-                previous_rx,
-                previous_tx,
-            })
+pub fn create_network_logger() -> Logger {
+    let previous_interface = NetworkRunner::get_active_interface().unwrap();
+    let (previous_rx, previous_tx) =
+        match NetworkRunner::get_network_bytes(&previous_interface) {
+            Some(bytes) => bytes,
+            None => (0., 0.),
+        };
+
+    Logger::ValueLogger {
+        interval_ms: 1000,
+        runner: Box::new(NetworkRunner {
+            previous_interface,
+            previous_rx,
+            previous_tx,
         }),
     }
 }

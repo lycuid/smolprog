@@ -14,7 +14,7 @@ mod sessions;
 mod volume;
 
 pub trait ValueRunner {
-    fn get_value(&mut self) -> Option<String>;
+    fn get_value(&mut self) -> String;
 }
 
 pub trait FifoRunner {
@@ -24,15 +24,14 @@ pub trait FifoRunner {
 pub enum Logger {
     /// Used for interval based logging (log on every interval).
     ValueLogger {
-        default_value: String,
         interval_ms: u64,
-        create_runner: Box<dyn Fn() -> Box<dyn ValueRunner> + Send + Sync>,
+        runner: Box<dyn ValueRunner + Send + Sync>,
     },
     /// Used for logging from 'fifo' file (log as soon as content updates).
     FifoLogger {
         default_value: String,
         fifopath: String,
-        create_runner: Box<dyn Fn() -> Box<dyn FifoRunner> + Send + Sync>,
+        runner: Box<dyn FifoRunner + Send + Sync>,
     },
 }
 

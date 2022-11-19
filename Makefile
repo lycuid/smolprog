@@ -1,4 +1,4 @@
-NAME=smolprog
+NAME=$(shell sed -n '0,/^name/ s/^name\s*\=\s*\"\(.*\)\"$$/\1/p' Cargo.toml)
 BIN=./target/release/$(NAME)
 PREFIX=/usr/local
 BINPREFIX=$(PREFIX)/bin

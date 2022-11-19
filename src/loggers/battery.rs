@@ -11,10 +11,8 @@ impl BatteryRunner {
     fn fmt_value(string: String) -> String {
         format!(" {}  ", string)
     }
-}
 
-impl ValueRunner for BatteryRunner {
-    fn get_value(&mut self) -> Option<String> {
+    fn calculate(&mut self) -> Option<String> {
         let capacity_str =
             read_to_string("/sys/class/power_supply/BAT0/capacity").ok()?;
         let capacity: usize = capacity_str.lines().next()?.parse().ok()?;
@@ -39,10 +37,17 @@ impl ValueRunner for BatteryRunner {
     }
 }
 
+impl ValueRunner for BatteryRunner {
+    fn get_value(&mut self) -> String {
+        self.calculate()
+            .or_else(|| Some(BatteryRunner::fmt_value("battery: ?".into())))
+            .unwrap()
+    }
+}
+
 pub fn create_battery_logger() -> Logger {
     Logger::ValueLogger {
-        default_value: BatteryRunner::fmt_value("battery: ?".into()),
         interval_ms: 1000,
-        create_runner: Box::new(|| Box::new(BatteryRunner { index: 0 })),
+        runner: Box::new(BatteryRunner { index: 0 }),
     }
 }

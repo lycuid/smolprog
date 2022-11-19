@@ -16,10 +16,8 @@ impl DateRunner {
             text = string
         )
     }
-}
 
-impl ValueRunner for DateRunner {
-    fn get_value(&mut self) -> Option<String> {
+    fn calculate(&mut self) -> Option<String> {
         Command::new("date")
             .arg("+ %a, %b %d %H:%M:%S ")
             .output()
@@ -30,10 +28,17 @@ impl ValueRunner for DateRunner {
     }
 }
 
+impl ValueRunner for DateRunner {
+    fn get_value(&mut self) -> String {
+        self.calculate()
+            .or_else(|| Some(DateRunner::fmt_value("date: ?".into())))
+            .unwrap()
+    }
+}
+
 pub fn create_date_logger() -> Logger {
     Logger::ValueLogger {
-        default_value: DateRunner::fmt_value("date: ?".into()),
         interval_ms: 1000,
-        create_runner: Box::new(|| Box::new(DateRunner {})),
+        runner: Box::new(DateRunner {}),
     }
 }

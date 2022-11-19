@@ -17,10 +17,8 @@ impl CpuRunner {
             string
         )
     }
-}
 
-impl ValueRunner for CpuRunner {
-    fn get_value(&mut self) -> Option<String> {
+    fn calculate(&mut self) -> Option<String> {
         let file = File::open("/proc/stat").ok()?;
         let mut line = String::new();
         BufReader::new(file).read_line(&mut line).ok()?;
@@ -55,10 +53,17 @@ impl ValueRunner for CpuRunner {
     }
 }
 
+impl ValueRunner for CpuRunner {
+    fn get_value(&mut self) -> String {
+        self.calculate()
+            .or_else(|| Some(CpuRunner::fmt_value("cpu: ?".into())))
+            .unwrap()
+    }
+}
+
 pub fn create_cpu_logger() -> Logger {
     Logger::ValueLogger {
-        default_value: CpuRunner::fmt_value("cpu: ?".into()),
         interval_ms: 1000,
-        create_runner: Box::new(|| Box::new(CpuRunner { previous: [0; 7] })),
+        runner: Box::new(CpuRunner { previous: [0; 7] }),
     }
 }

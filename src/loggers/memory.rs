@@ -11,10 +11,8 @@ impl MemoryRunner {
             string
         )
     }
-}
 
-impl ValueRunner for MemoryRunner {
-    fn get_value(&mut self) -> Option<String> {
+    fn calculate(&mut self) -> Option<String> {
         let mem: Vec<u64> = Command::new("free")
             .output()
             .ok()
@@ -41,10 +39,17 @@ impl ValueRunner for MemoryRunner {
     }
 }
 
+impl ValueRunner for MemoryRunner {
+    fn get_value(&mut self) -> String {
+        self.calculate()
+            .or_else(|| Some(MemoryRunner::fmt_value("mem: ?".into())))
+            .unwrap()
+    }
+}
+
 pub fn create_memory_logger() -> Logger {
     Logger::ValueLogger {
-        default_value: MemoryRunner::fmt_value("mem: ?".into()),
         interval_ms: 1000,
-        create_runner: Box::new(|| Box::new(MemoryRunner {})),
+        runner: Box::new(MemoryRunner {}),
     }
 }

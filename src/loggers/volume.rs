@@ -19,6 +19,6 @@ pub fn create_volume_logger() -> Logger {
         fifopath: env::var("XDG_RUNTIME_DIR")
             .map(|dir| format!("{}/pipe/volume", dir))
             .unwrap(),
-        create_runner: Box::new(|| Box::new(VolumeRunner {})),
+        runner: Box::new(VolumeRunner {}),
     }
 }
