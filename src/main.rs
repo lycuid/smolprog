@@ -65,8 +65,11 @@ fn main() -> io::Result<()> {
 
     let mut stdout = io::stdout();
     while let Ok((index, string)) = rx.recv() {
-        values[index] = string;
+        if values[index] != string {
+            values[index] = string;
+        }
         stdout.write(values.join("").as_bytes())?;
+        stdout.write("\n".as_bytes())?;
         stdout.flush()?;
     }
 
