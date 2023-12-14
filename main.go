@@ -7,26 +7,26 @@ import (
 )
 
 func main() {
-	channel := make(chan logger.Message)
+	channel := make(chan *logger.Message)
 	defer close(channel)
 
-	runners := []logger.Runner{
-		logger.IntervalRunner(&logger.Network{}),
-		logger.IntervalRunner(&logger.Cpu{}),
-		logger.IntervalRunner(&logger.Memory{}),
-		logger.FifoRunner(&logger.Volume{}),
-		logger.IntervalRunner(&logger.Sessions{}),
-		logger.IntervalRunner(&logger.Date{}),
+	loggers := []logger.Logger{
+		&logger.Network{},
+		&logger.Cpu{},
+		&logger.Memory{},
+		&logger.Volume{},
+		&logger.Sessions{},
+		&logger.Date{},
 	}
 
-	values := make([]string, len(runners))
+	values := make([]string, len(loggers))
 
-	for i, runner := range runners {
-		go runner(i, channel)
+	for i, log := range loggers {
+		go log.Run(i, channel)
 	}
 
 	for msg := range channel {
-		values[msg.Position] = msg.Value
+		values[msg.Slot] = msg.Value
 		fmt.Println(strings.Join(values, ""))
 	}
 }

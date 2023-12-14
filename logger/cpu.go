@@ -8,6 +8,10 @@ import (
 
 type Cpu struct{ total, used int }
 
+func (cpu *Cpu) Run(slot int, channel chan<- *Message) {
+	IntervalRunner(cpu, slot, channel)
+}
+
 func (_ *Cpu) Interval() time.Duration {
 	return time.Second
 }
@@ -18,9 +22,8 @@ func (cpu *Cpu) Value() string {
 
 func (cpu *Cpu) calculate() string {
 	var (
-		vals []string
-		// old values
-		total, used = cpu.total, cpu.used
+		vals        []string
+		total, used = cpu.total, cpu.used // old values
 	)
 
 	// invalid filepath should not crash the program.

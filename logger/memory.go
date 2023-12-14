@@ -9,6 +9,10 @@ import (
 
 type Memory struct{}
 
+func (mem *Memory) Run(slot int, channel chan<- *Message) {
+	IntervalRunner(mem, slot, channel)
+}
+
 func (_ *Memory) Interval() time.Duration {
 	return time.Second
 }
@@ -21,7 +25,7 @@ func formatted(usage float32) (string, string) {
 	if usage >= 1000 {
 		return fmt.Sprintf("%.2f", usage/1024), "GiB"
 	}
-	return fmt.Sprintf("%4f", usage), "Mib"
+	return fmt.Sprintf("%4d", int(usage)), "Mib"
 }
 
 func (_ *Memory) calculate() string {

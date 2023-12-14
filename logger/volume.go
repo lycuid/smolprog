@@ -1,15 +1,18 @@
 package logger
 
-import "os"
+import . "smolprog/utils"
 
 type Volume struct{}
 
-func (_ *Volume) FilePath() string {
-	return os.Getenv("XDG_RUNTIME_DIR") + "/pipe/volume"
-}
+func (vol *Volume) Run(slot int, channel chan<- *Message) {
+	msg := Message{Slot: slot, Value: vol.Fmt("  ?")}
 
-func (_ *Volume) Default() string {
-	return "  ?"
+	for channel <- &msg; ; {
+		if line, err := FirstLineOf(XDG_RUNTIME_DIR + "/pipe/volume"); err == nil {
+			msg.Value = vol.Fmt(line)
+			channel <- &msg
+		}
+	}
 }
 
 func (_ *Volume) Fmt(s string) string {

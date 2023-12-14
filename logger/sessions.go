@@ -9,12 +9,16 @@ import (
 
 type Sessions struct{}
 
+func (ses *Sessions) Run(slot int, channel chan<- *Message) {
+	IntervalRunner(ses, slot, channel)
+}
+
 func (_ *Sessions) Interval() time.Duration {
 	return time.Second
 }
 
-func (sessions *Sessions) Value() string {
-	return "<BtnL=notify_tmux_ls> <Fg=#9b59b6>  " + sessions.calculate() + "</Fg>  </BtnL>"
+func (ses *Sessions) Value() string {
+	return "<BtnL=notify_tmux_ls> <Fg=#9b59b6>  " + ses.calculate() + "</Fg>  </BtnL>"
 }
 
 func (_ *Sessions) calculate() string {

@@ -60,6 +60,10 @@ type Network struct {
 	iface string
 }
 
+func (net *Network) Run(slot int, channel chan<- *Message) {
+	IntervalRunner(net, slot, channel)
+}
+
 func (_ *Network) Interval() time.Duration {
 	return time.Second
 }
@@ -70,9 +74,8 @@ func (net *Network) Value() string {
 
 func (net *Network) calculate() string {
 	var (
-		iface string
-		// old values
-		rx, tx = net.rx, net.tx
+		iface  string
+		rx, tx = net.rx, net.tx // old values
 	)
 
 	if iface = getActiveInterface(); len(iface) == 0 {
