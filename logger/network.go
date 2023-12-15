@@ -11,8 +11,6 @@ import (
 
 const NET_DIR = "/sys/class/net"
 
-var XDG_RUNTIME_DIR = os.Getenv("XDG_RUNTIME_DIR")
-
 type networkBytes struct{ rx, tx float64 }
 
 func getActiveInterface() (user_iface string) {

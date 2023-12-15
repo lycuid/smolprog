@@ -42,9 +42,9 @@ func (cpu *Cpu) calculate() string {
 	switch usage := (used * 100) / Max(1, total); {
 	case InRange(usage, 0, 24):
 		return fmt.Sprintf("  %3d%%", usage)
-	case InRange(usage, 0, 24):
+	case InRange(usage, 25, 66):
 		return fmt.Sprintf("  <Fg=#ffdd59>%3d</Fg>%%", usage)
-	case InRange(usage, 0, 24):
+	case usage > 66:
 		return fmt.Sprintf("  <Fg=#cc6666>%3d</Fg>%%", usage)
 	}
 

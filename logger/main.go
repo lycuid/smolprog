@@ -1,6 +1,11 @@
 package logger
 
-import "time"
+import (
+	"os"
+	"time"
+)
+
+var XDG_RUNTIME_DIR = os.Getenv("XDG_RUNTIME_DIR")
 
 type Message struct {
 	Slot  int

@@ -10,19 +10,20 @@ func main() {
 	channel := make(chan *logger.Message)
 	defer close(channel)
 
-	loggers := []logger.Logger{
+	logrs := []logger.Logger{
 		&logger.Network{},
 		&logger.Cpu{},
 		&logger.Memory{},
 		&logger.Volume{},
 		&logger.Sessions{},
+		&logger.Battery{},
 		&logger.Date{},
 	}
 
-	values := make([]string, len(loggers))
+	values := make([]string, len(logrs))
 
-	for i, log := range loggers {
-		go log.Run(i, channel)
+	for slot, logr := range logrs {
+		go logr.Run(slot, channel)
 	}
 
 	for msg := range channel {
