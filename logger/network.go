@@ -67,7 +67,7 @@ func (_ *Network) Interval() time.Duration {
 }
 
 func (net *Network) Value() string {
-	return "<BtnL=xdotool key super+ctrl+n> " + net.calculate() + "  </BtnL><Box:Left=#171717:2> </Box>"
+	return "<BtnL=xdotool key super+ctrl+n>  " + net.calculate() + "  </BtnL>"
 }
 
 func (net *Network) calculate() string {

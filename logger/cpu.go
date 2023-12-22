@@ -17,7 +17,7 @@ func (_ *Cpu) Interval() time.Duration {
 }
 
 func (cpu *Cpu) Value() string {
-	return "<BtnL=notify_max_cpu> " + cpu.calculate() + "  </BtnL><Box:Left=#171717:2> </Box>"
+	return SEP + "<BtnL=notify_max_cpu>  " + cpu.calculate() + "  </BtnL>"
 }
 
 func (cpu *Cpu) calculate() string {

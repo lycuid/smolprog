@@ -1,9 +1,6 @@
 package logger
 
-import (
-	"fmt"
-	"time"
-)
+import "time"
 
 type Date struct{}
 
@@ -16,14 +13,5 @@ func (_ *Date) Interval() time.Duration {
 }
 
 func (_ *Date) Value() string {
-	return fmt.Sprintf(
-		"<Box:Top|Bottom|Left|Right=#089CAC>"+
-			"<Bg=#171717>"+
-			"<Fn=1>"+
-			" %s "+
-			"</Fn>"+
-			"</Bg>"+
-			"</Box>",
-		time.Now().Format("Jan, Mon 02 15:04:05"),
-	)
+	return SEP + "<Fn=1>  " + time.Now().Format("Jan, Mon 02 15:04:05") + " </Fn>"
 }

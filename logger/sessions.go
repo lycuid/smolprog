@@ -18,7 +18,7 @@ func (_ *Sessions) Interval() time.Duration {
 }
 
 func (ses *Sessions) Value() string {
-	return "<BtnL=notify_tmux_ls> <Fg=#9b59b6>  " + ses.calculate() + "</Fg>  </BtnL><Box:Left=#171717:2> </Box>"
+	return SEP + "<BtnL=notify_tmux_ls>  <Fg=#9b59b6>  " + ses.calculate() + "</Fg>  </BtnL>"
 }
 
 func (_ *Sessions) calculate() string {
