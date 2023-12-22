@@ -16,14 +16,13 @@ func (vol *Volume) Run(slot int, channel chan<- *Message) {
 }
 
 func (_ *Volume) Fmt(s string) string {
-	return "<ScrlU:Shift=volume 5%+>" +
+	return SEP + "<ScrlU:Shift=volume 5%+>" +
 		"<ScrlD:Shift=volume 5%->" +
 		"<ScrlU=volume 1%+>" +
 		"<ScrlD=volume 1%->" +
-		"<BtnL=volume toggle> " + s + "  </BtnL>" +
+		"<BtnL=volume toggle>  " + s + "  </BtnL>" +
 		"</ScrlD>" +
 		"</ScrlU>" +
 		"</ScrlD>" +
-		"</ScrlU>" +
-		"<Box:Left=#171717:2> </Box>"
+		"</ScrlU>"
 }

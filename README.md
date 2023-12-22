@@ -9,7 +9,7 @@ This program runs different procedures (***logger***) in seperate threads and ou
 ```sh
 sudo make install
 ```
-build using `go build` or the `make` command.
+build using `go build`.
 
 ## Use Case:
 I personally use this to set the `WM_NAME` attribute of the root X11 window, which is then read and displayed by my statusbar: [clubar](https://github.com/lycuid/clubar/) (similar to [dwm's](https://dwm.suckless.org/) statusbar).  

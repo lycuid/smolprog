@@ -7,6 +7,8 @@ import (
 
 var XDG_RUNTIME_DIR = os.Getenv("XDG_RUNTIME_DIR")
 
+const SEP = "<Fn=1><Fg=#373737></Fg></Fn>"
+
 type Message struct {
 	Slot  int
 	Value string

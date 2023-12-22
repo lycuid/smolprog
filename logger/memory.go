@@ -18,7 +18,7 @@ func (_ *Memory) Interval() time.Duration {
 }
 
 func (mem *Memory) Value() string {
-	return "<BtnL=notify_max_mem> " + mem.calculate() + "  </BtnL><Box:Left=#171717:2> </Box>"
+	return SEP + "<BtnL=notify_max_mem>  " + mem.calculate() + "  </BtnL>"
 }
 
 func formatted(usage float32) (string, string) {

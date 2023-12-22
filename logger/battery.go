@@ -22,7 +22,7 @@ func (_ *Battery) Interval() time.Duration {
 }
 
 func (bat *Battery) Value() string {
-	return " " + bat.calculate() + "  "
+	return SEP + "  " + bat.calculate() + "  "
 }
 
 func (bat *Battery) calculate() string {
