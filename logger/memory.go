@@ -49,7 +49,7 @@ func (_ *Memory) calculate() string {
 	usage, total = (vals[1]+vals[3])/1024, vals[0]/1024
 
 	switch value, unit := formatted(usage); {
-	case InRange(usage, 0, total*.24):
+	case InRange(usage, 0, total*.25):
 		return fmt.Sprintf("  %s %s", value, unit)
 	case InRange(usage, total*.25, total*.66):
 		return fmt.Sprintf("  <Fg=#ffdd59>%s</Fg> %s", value, unit)
