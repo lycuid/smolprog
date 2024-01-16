@@ -5,11 +5,15 @@ import . "smolprog/utils"
 type Volume struct{}
 
 func (vol *Volume) Run(slot int, channel chan<- *Message) {
-	msg := Message{Slot: slot, Value: vol.Fmt("  ?")}
+	default_value := vol.Fmt("  ?")
+	msg := Message{Slot: slot, Value: default_value}
 
 	for channel <- &msg; ; {
+		msg.Value = default_value
 		if line, err := FirstLineOf(XDG_RUNTIME_DIR + "/pipe/volume"); err == nil {
-			msg.Value = vol.Fmt(line)
+			if len(line) > 0 {
+				msg.Value = vol.Fmt(line)
+			}
 			channel <- &msg
 		}
 	}
