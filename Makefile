@@ -4,9 +4,6 @@ BIN:=$(NAME)
 PREFIX:=/usr/local
 BINPREFIX:=$(PREFIX)/bin
 
-run: $(BIN)
-	./$(BIN)
-
 .PHONY: install uninstall
 install:
 	mkdir -p $(DESTDIR)$(BINPREFIX)
