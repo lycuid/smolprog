@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	. "smolprog/utils"
+	"strconv"
 	"time"
 )
 
@@ -34,7 +35,9 @@ func (bat *Battery) calculate() string {
 
 func (_ *Battery) getCapacity() int {
 	if capacity, err := FirstLineOf(BAT_DIR + "/capacity"); err == nil {
-		return Number[int](capacity)
+		if num, err := strconv.Atoi(capacity); err == nil {
+			return num
+		}
 	}
 	return -1
 }

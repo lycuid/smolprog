@@ -45,10 +45,10 @@ func getNetworkInterfaces() (ifaces []string) {
 
 func getNetworkBytes(iface string) (bytes networkBytes) {
 	if rx_string, err := FirstLineOf(NET_DIR + "/" + iface + "/statistics/rx_bytes"); err == nil {
-		bytes.rx = Number[float64](rx_string)
+		bytes.rx = Float(rx_string)
 	}
 	if tx_string, err := FirstLineOf(NET_DIR + "/" + iface + "/statistics/tx_bytes"); err == nil {
-		bytes.tx = Number[float64](tx_string)
+		bytes.tx = Float(tx_string)
 	}
 	return bytes
 }

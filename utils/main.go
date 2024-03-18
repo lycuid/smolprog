@@ -54,6 +54,13 @@ func FirstLineOf(file_path string) (string, error) {
 	return file_scanner.Text(), nil
 }
 
+func StartsWith(src, dst string) bool {
+	if len(dst) > len(src) {
+		return false
+	}
+	return src[:len(dst)] == dst
+}
+
 func Map[In any, Out any](input []In, fn func(In) Out) (output []Out) {
 	for i := range input {
 		output = append(output, fn(input[i]))
@@ -61,13 +68,14 @@ func Map[In any, Out any](input []In, fn func(In) Out) (output []Out) {
 	return output
 }
 
-func Filter[T any](input []T, fn func(T) bool) (output []T) {
-	for i := range input {
-		if fn(input[i]) {
-			output = append(output, input[i])
+func Filter[T any](input []T, fn func(T) bool) []T {
+	var i int
+	for j := range input {
+		if fn(input[j]) {
+			input[i], i = input[j], i+1
 		}
 	}
-	return output
+	return input[:i]
 }
 
 func Contains[T comparable](haystack []T, needle T) bool {
@@ -86,7 +94,14 @@ func Sum(nums []int) (num int) {
 	return num
 }
 
-func Number[T int | uint | float32 | float64](num string) T {
+func Float(num string) float64 {
+	if n, err := strconv.ParseFloat(num, 64); err == nil {
+		return n
+	}
+	return 0
+}
+
+func Integer[T int | uint](num string) T {
 	if n, err := strconv.Atoi(num); err == nil {
 		return T(n)
 	}

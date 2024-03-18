@@ -1,8 +1,9 @@
 package logger
 
 import (
+	"bufio"
 	"fmt"
-	"os/exec"
+	"os"
 	. "smolprog/utils"
 	"time"
 )
@@ -21,7 +22,7 @@ func (mem *Memory) Value() string {
 	return SEP + "<BtnL=notify_max_mem>  " + mem.calculate() + "  </BtnL>"
 }
 
-func formatted(usage float32) (string, string) {
+func formatted(usage float64) (string, string) {
 	if usage >= 1000 {
 		return fmt.Sprintf("%.2f", usage/1024), "GiB"
 	}
@@ -29,24 +30,32 @@ func formatted(usage float32) (string, string) {
 }
 
 func (_ *Memory) calculate() string {
-	var (
-		lines        [][]string
-		vals         []float32
-		usage, total float32
-	)
+	var usage, total float64
 
-	cmd := exec.Command("free")
-	if output, err := cmd.Output(); err == nil {
-		lines = Filter(Map(Lines(string(output)), Words), func(ws []string) bool {
-			return len(ws) > 0 && ws[0] == "Mem:"
-		})
-	}
-	if len(lines) == 0 {
+	file, err := os.Open("/proc/meminfo")
+	if err != nil {
 		goto DEFAULT
 	}
+	defer file.Close()
 
-	vals = Map[string, float32](lines[0][1:], Number)
-	usage, total = (vals[1]+vals[3])/1024, vals[0]/1024
+	for f, scanner := 0b1111, bufio.NewScanner(file); f > 0 && scanner.Scan(); {
+		line := scanner.Text()
+		switch {
+		case StartsWith(line, "MemTotal:"):
+			f &= ^(1 << 0)
+			total += Float(Words(line)[1])
+		case StartsWith(line, "MemFree:"):
+			f &= ^(1 << 1)
+			total -= Float(Words(line)[1])
+		case StartsWith(line, "Buffers:"):
+			f &= ^(1 << 2)
+			total -= Float(Words(line)[1])
+		case StartsWith(line, "Cached:"):
+			f &= ^(1 << 3)
+			total -= Float(Words(line)[1])
+		}
+	}
+	usage = total / 1024.
 
 	switch value, unit := formatted(usage); {
 	case InRange(usage, 0, total*.25):

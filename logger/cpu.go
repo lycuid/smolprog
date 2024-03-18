@@ -34,8 +34,8 @@ func (cpu *Cpu) calculate() string {
 	}
 
 	// new values.
-	cpu.total = Sum(Map[string, int](vals[:7], Number))
-	cpu.used = Sum(Map[string, int](vals[:3], Number))
+	cpu.total = Sum(Map[string, int](vals[:7], Integer))
+	cpu.used = Sum(Map[string, int](vals[:3], Integer))
 
 	total, used = cpu.total-total, cpu.used-used
 
