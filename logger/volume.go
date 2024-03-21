@@ -9,10 +9,11 @@ func (vol *Volume) Run(slot int, channel chan<- *Message) {
 	msg := Message{Slot: slot, Value: default_value}
 
 	for channel <- &msg; ; {
-		msg.Value = default_value
 		if line, err := FirstLineOf(XDG_RUNTIME_DIR + "/pipe/volume"); err == nil {
 			if len(line) > 0 {
 				msg.Value = vol.Fmt(line)
+			} else {
+				msg.Value = default_value
 			}
 			channel <- &msg
 		}
