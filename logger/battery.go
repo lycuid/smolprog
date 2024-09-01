@@ -2,15 +2,26 @@ package logger
 
 import (
 	"fmt"
+	"os"
 	. "smolprog/utils"
 	"strconv"
 	"time"
 )
 
 var (
-	BAT_DIR = "/sys/class/power_supply/BAT0"
+	BAT_DIR = ""
 	SYM     = []string{" ", " ", " ", " ", " "}
 )
+
+func init() {
+	if entries, err := os.ReadDir("/sys/class/power_supply"); err == nil {
+		for _, entry := range entries {
+			if StartsWith(entry.Name(), "BAT") {
+				BAT_DIR = "/sys/class/power_supply/" + entry.Name()
+			}
+		}
+	}
+}
 
 type Battery struct{ sym_index int }
 
