@@ -2,7 +2,6 @@ package logger
 
 import (
 	"fmt"
-	"io/fs"
 	"os"
 	. "smolprog/utils"
 	"strings"
@@ -17,18 +16,27 @@ func getActiveInterface() (user_iface string) {
 	// prioritizing user selected interface.
 	user_iface, _ = FirstLineOf(XDG_RUNTIME_DIR + "/net/active")
 
-	active_ifaces := Filter(getNetworkInterfaces(), isInterfaceActive)
+	active_ifaces := getNetworkInterfaces()
+	for i, j := 0, 0; i < len(active_ifaces); i++ {
+		if isInterfaceActive(active_ifaces[i]) {
+			active_ifaces[j], j = active_ifaces[i], j+1
+		}
+	}
 	// no interfaces active at this point.
 	if len(active_ifaces) == 0 {
 		return ""
 	}
 
-	// user selected interface is not active.
-	if !Contains(active_ifaces, user_iface) {
-		return active_ifaces[0]
+	var isUserIfaceActive bool
+	for _, iface := range active_ifaces {
+		if isUserIfaceActive = iface == user_iface; isUserIfaceActive {
+			break
+		}
 	}
-
-	return user_iface
+	if isUserIfaceActive {
+		return user_iface
+	}
+	return active_ifaces[0]
 }
 
 func isInterfaceActive(iface string) bool {
@@ -38,7 +46,10 @@ func isInterfaceActive(iface string) bool {
 
 func getNetworkInterfaces() (ifaces []string) {
 	if entries, err := os.ReadDir(NET_DIR); err == nil {
-		ifaces = Map(entries, func(entry fs.DirEntry) string { return entry.Name() })
+		ifaces = make([]string, len(entries))
+		for _, entry := range entries {
+			ifaces = append(ifaces, entry.Name())
+		}
 	}
 	return ifaces
 }

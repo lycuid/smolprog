@@ -34,18 +34,23 @@ func (cpu *Cpu) calculate() string {
 	}
 
 	// new values.
-	cpu.total = Sum(Map[string, int](vals[:7], Integer))
-	cpu.used = Sum(Map[string, int](vals[:3], Integer))
+	cpu.total, cpu.used = 0, 0
+	for _, val := range vals[:7] {
+		cpu.total += Integer(val)
+	}
+	for _, val := range vals[:3] {
+		cpu.used += Integer(val)
+	}
 
 	total, used = cpu.total-total, cpu.used-used
 
-	switch usage := (used * 100) / Max(1, total); {
+	switch usage := float64((used * 100) / Max(1, total)); {
 	case InRange(usage, 0, 24):
-		return fmt.Sprintf("  %3d%%", usage)
+		return fmt.Sprintf("  %3.0f%%", usage)
 	case InRange(usage, 25, 66):
-		return fmt.Sprintf("  <Fg=#ffdd59>%3d</Fg>%%", usage)
+		return fmt.Sprintf("  <Fg=#ffdd59>%3.0f</Fg>%%", usage)
 	case usage > 66:
-		return fmt.Sprintf("  <Fg=#cc6666>%3d</Fg>%%", usage)
+		return fmt.Sprintf("  <Fg=#cc6666>%3.0f</Fg>%%", usage)
 	}
 
 DEFAULT:
