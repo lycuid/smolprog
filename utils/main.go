@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bufio"
-	"cmp"
 	"os"
 	"strconv"
 	"strings"
@@ -15,7 +14,7 @@ func Max(i, j int) int {
 	return j
 }
 
-func InRange[T cmp.Ordered](value, lower, upper T) bool {
+func InRange(value, lower, upper float64) bool {
 	return value >= lower && value <= upper
 }
 
@@ -61,39 +60,6 @@ func StartsWith(src, dst string) bool {
 	return src[:len(dst)] == dst
 }
 
-func Map[In any, Out any](input []In, fn func(In) Out) (output []Out) {
-	for i := range input {
-		output = append(output, fn(input[i]))
-	}
-	return output
-}
-
-func Filter[T any](input []T, fn func(T) bool) []T {
-	var i int
-	for j := range input {
-		if fn(input[j]) {
-			input[i], i = input[j], i+1
-		}
-	}
-	return input[:i]
-}
-
-func Contains[T comparable](haystack []T, needle T) bool {
-	for i := range haystack {
-		if haystack[i] == needle {
-			return true
-		}
-	}
-	return false
-}
-
-func Sum(nums []int) (num int) {
-	for i := range nums {
-		num += nums[i]
-	}
-	return num
-}
-
 func Float(num string) float64 {
 	if n, err := strconv.ParseFloat(num, 64); err == nil {
 		return n
@@ -101,9 +67,9 @@ func Float(num string) float64 {
 	return 0
 }
 
-func Integer[T int | uint](num string) T {
+func Integer(num string) int {
 	if n, err := strconv.Atoi(num); err == nil {
-		return T(n)
+		return n
 	}
-	return T(0)
+	return 0
 }
