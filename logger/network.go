@@ -17,13 +17,12 @@ func getActiveInterface() (user_iface string) {
 	user_iface, _ = FirstLineOf(XDG_RUNTIME_DIR + "/net/active")
 	fmt.Println(user_iface)
 
-	active_ifaces, j := getNetworkInterfaces(), 0
-	for i := 0; i < len(active_ifaces); i++ {
+	active_ifaces := getNetworkInterfaces()
+	for i, j := 0, 0; i < len(active_ifaces); i++ {
 		if isInterfaceActive(active_ifaces[i]) {
 			active_ifaces[j], j = active_ifaces[i], j+1
 		}
 	}
-	active_ifaces = active_ifaces[:j]
 	// no interfaces active at this point.
 	if len(active_ifaces) == 0 {
 		return ""
