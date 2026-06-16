@@ -1,9 +1,9 @@
-package logger
+package blocks
 
 import (
 	"fmt"
 	"os/exec"
-	. "smolprog/utils"
+	. "smolprog/util"
 	"time"
 )
 
@@ -13,15 +13,15 @@ func (ses *Sessions) Run(slot int, channel chan<- *Message) {
 	IntervalRunner(ses, slot, channel)
 }
 
-func (_ *Sessions) Interval() time.Duration {
+func (*Sessions) Interval() time.Duration {
 	return time.Second
 }
 
 func (ses *Sessions) Value() string {
-	return SEP + "<BtnL=notify_tmux_ls>  <Fg=#9b59b6>  " + ses.calculate() + "</Fg>  </BtnL>"
+	return SEP + "<BtnL=notify_tmux_ls>  <Fg=#9b59b6>  " + ses.count() + "</Fg>  </BtnL>"
 }
 
-func (_ *Sessions) calculate() string {
+func (*Sessions) count() string {
 	var lines []string
 
 	cmd := exec.Command("tmux", "ls")

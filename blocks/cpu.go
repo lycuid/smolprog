@@ -1,8 +1,8 @@
-package logger
+package blocks
 
 import (
 	"fmt"
-	. "smolprog/utils"
+	. "smolprog/util"
 	"time"
 )
 
@@ -12,15 +12,15 @@ func (cpu *Cpu) Run(slot int, channel chan<- *Message) {
 	IntervalRunner(cpu, slot, channel)
 }
 
-func (_ *Cpu) Interval() time.Duration {
+func (*Cpu) Interval() time.Duration {
 	return time.Second
 }
 
 func (cpu *Cpu) Value() string {
-	return SEP + "<BtnL=notify_max_cpu>  " + cpu.calculate() + "  </BtnL>"
+	return SEP + "<BtnL=notify_max_cpu>  " + cpu.usage() + "  </BtnL>"
 }
 
-func (cpu *Cpu) calculate() string {
+func (cpu *Cpu) usage() string {
 	var (
 		vals        []string
 		total, used = cpu.total, cpu.used // old values
@@ -44,7 +44,7 @@ func (cpu *Cpu) calculate() string {
 
 	total, used = cpu.total-total, cpu.used-used
 
-	switch usage := float64((used * 100) / Max(1, total)); {
+	switch usage := float64((used * 100) / max(1, total)); {
 	case InRange(usage, 0, 24):
 		return fmt.Sprintf("  %3.0f%%", usage)
 	case InRange(usage, 25, 66):

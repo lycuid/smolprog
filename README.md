@@ -2,7 +2,7 @@
 **S**ystem **M**ontitoring and **O**rdered **L**ogging **PROG**ram.
 
 This is pretty much similar to another, very well known, open source project called [slstatus](https://tools.suckless.org/slstatus/).  
-This program runs different procedures (***logger***) in seperate threads and outputs the values in an ordered manner to ***stdout***.  
+This program runs different procedures (***blocks***) in seperate threads and outputs the values in an ordered manner to ***stdout***.  
 
 
 ## Installation

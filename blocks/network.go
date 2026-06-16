@@ -1,9 +1,9 @@
-package logger
+package blocks
 
 import (
 	"fmt"
 	"os"
-	. "smolprog/utils"
+	. "smolprog/util"
 	"strings"
 	"time"
 )
@@ -15,16 +15,18 @@ type networkBytes struct{ rx, tx float64 }
 func getActiveInterface() (user_iface string) {
 	// prioritizing user selected interface.
 	user_iface, _ = FirstLineOf(XDG_RUNTIME_DIR + "/net/active")
-	fmt.Println(user_iface)
 
-	active_ifaces := getNetworkInterfaces()
-	for i, j := 0, 0; i < len(active_ifaces); i++ {
+	var (
+		active_ifaces = getNetworkInterfaces()
+		iface_len     int
+	)
+	for i := range active_ifaces {
 		if isInterfaceActive(active_ifaces[i]) {
-			active_ifaces[j], j = active_ifaces[i], j+1
+			active_ifaces[iface_len], iface_len = active_ifaces[i], iface_len+1
 		}
 	}
 	// no interfaces active at this point.
-	if len(active_ifaces) == 0 {
+	if active_ifaces = active_ifaces[:iface_len]; len(active_ifaces) == 0 {
 		return ""
 	}
 
@@ -47,7 +49,7 @@ func isInterfaceActive(iface string) bool {
 
 func getNetworkInterfaces() (ifaces []string) {
 	if entries, err := os.ReadDir(NET_DIR); err == nil {
-		ifaces = make([]string, len(entries))
+		ifaces = make([]string, 0, len(entries))
 		for _, entry := range entries {
 			ifaces = append(ifaces, entry.Name())
 		}
@@ -74,15 +76,15 @@ func (net *Network) Run(slot int, channel chan<- *Message) {
 	IntervalRunner(net, slot, channel)
 }
 
-func (_ *Network) Interval() time.Duration {
+func (*Network) Interval() time.Duration {
 	return time.Second
 }
 
 func (net *Network) Value() string {
-	return "<BtnL=xdotool key super+ctrl+n>  " + net.calculate() + "  </BtnL>"
+	return "<BtnL=xdotool key super+ctrl+n>  " + net.usage() + "  </BtnL>"
 }
 
-func (net *Network) calculate() string {
+func (net *Network) usage() string {
 	var (
 		iface  string
 		rx, tx = net.rx, net.tx // old values

@@ -2,31 +2,31 @@ package main
 
 import (
 	"fmt"
-	"smolprog/logger"
+	"smolprog/blocks"
 	"strings"
 )
 
 func main() {
-	channel := make(chan *logger.Message)
-	defer close(channel)
+	ch := make(chan *blocks.Message)
+	defer close(ch)
 
-	logrs := []logger.Logger{
-		&logger.Network{},
-		&logger.Cpu{},
-		&logger.Memory{},
-		&logger.Volume{},
-		&logger.Sessions{},
-		&logger.Battery{},
-		&logger.Date{},
+	blks := []blocks.Block{
+		&blocks.Network{},
+		&blocks.Cpu{},
+		&blocks.Memory{},
+		&blocks.Volume{},
+		&blocks.Sessions{},
+		&blocks.Battery{},
+		&blocks.Date{},
 	}
 
-	values := make([]string, len(logrs))
+	values := make([]string, len(blks))
 
-	for slot, logr := range logrs {
-		go logr.Run(slot, channel)
+	for slot, blk := range blks {
+		go blk.Run(slot, ch)
 	}
 
-	for msg := range channel {
+	for msg := range ch {
 		values[msg.Slot] = msg.Value
 		fmt.Println(strings.Join(values, ""))
 	}

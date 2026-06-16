@@ -1,10 +1,11 @@
-package logger
+package blocks
 
 import (
 	"fmt"
 	"os"
-	. "smolprog/utils"
+	. "smolprog/util"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -16,7 +17,7 @@ var (
 func init() {
 	if entries, err := os.ReadDir("/sys/class/power_supply"); err == nil {
 		for _, entry := range entries {
-			if StartsWith(entry.Name(), "BAT") {
+			if strings.HasPrefix(entry.Name(), "BAT") {
 				BAT_DIR = "/sys/class/power_supply/" + entry.Name()
 			}
 		}
@@ -29,22 +30,22 @@ func (bat *Battery) Run(slot int, channel chan<- *Message) {
 	IntervalRunner(bat, slot, channel)
 }
 
-func (_ *Battery) Interval() time.Duration {
+func (*Battery) Interval() time.Duration {
 	return time.Second
 }
 
 func (bat *Battery) Value() string {
-	return SEP + "  " + bat.calculate() + "  "
+	return SEP + "  " + bat.usage() + "  "
 }
 
-func (bat *Battery) calculate() string {
+func (bat *Battery) usage() string {
 	if capacity := bat.getCapacity(); capacity >= 0 {
 		return fmt.Sprintf("%s %3d", bat.getStatus(capacity), capacity)
 	}
 	return "  ?"
 }
 
-func (_ *Battery) getCapacity() int {
+func (*Battery) getCapacity() int {
 	if capacity, err := FirstLineOf(BAT_DIR + "/capacity"); err == nil {
 		if num, err := strconv.Atoi(capacity); err == nil {
 			return num

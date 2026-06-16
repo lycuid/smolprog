@@ -1,6 +1,6 @@
-package logger
+package blocks
 
-import . "smolprog/utils"
+import . "smolprog/util"
 
 type Volume struct{}
 

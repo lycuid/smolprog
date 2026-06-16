@@ -1,10 +1,11 @@
-package logger
+package blocks
 
 import (
 	"bufio"
 	"fmt"
 	"os"
-	. "smolprog/utils"
+	. "smolprog/util"
+	"strings"
 	"time"
 )
 
@@ -14,12 +15,12 @@ func (mem *Memory) Run(slot int, channel chan<- *Message) {
 	IntervalRunner(mem, slot, channel)
 }
 
-func (_ *Memory) Interval() time.Duration {
+func (*Memory) Interval() time.Duration {
 	return time.Second
 }
 
 func (mem *Memory) Value() string {
-	return SEP + "<BtnL=notify_max_mem>  " + mem.calculate() + "  </BtnL>"
+	return SEP + "<BtnL=notify_max_mem>  " + mem.usage() + "  </BtnL>"
 }
 
 func formatted(usage float64) (string, string) {
@@ -29,7 +30,7 @@ func formatted(usage float64) (string, string) {
 	return fmt.Sprintf("%4d", int(usage)), "Mib"
 }
 
-func (_ *Memory) calculate() string {
+func (*Memory) usage() string {
 	var usage, total float64
 
 	file, err := os.Open("/proc/meminfo")
@@ -41,16 +42,16 @@ func (_ *Memory) calculate() string {
 	for f, scanner := 0b1111, bufio.NewScanner(file); f > 0 && scanner.Scan(); {
 		line := scanner.Text()
 		switch {
-		case StartsWith(line, "MemTotal:"):
+		case strings.HasPrefix(line, "MemTotal:"):
 			f &= ^(1 << 0)
 			total += Float(Words(line)[1])
-		case StartsWith(line, "MemFree:"):
+		case strings.HasPrefix(line, "MemFree:"):
 			f &= ^(1 << 1)
 			total -= Float(Words(line)[1])
-		case StartsWith(line, "Buffers:"):
+		case strings.HasPrefix(line, "Buffers:"):
 			f &= ^(1 << 2)
 			total -= Float(Words(line)[1])
-		case StartsWith(line, "Cached:"):
+		case strings.HasPrefix(line, "Cached:"):
 			f &= ^(1 << 3)
 			total -= Float(Words(line)[1])
 		}

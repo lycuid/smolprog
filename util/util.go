@@ -1,4 +1,4 @@
-package utils
+package util
 
 import (
 	"bufio"
@@ -6,13 +6,6 @@ import (
 	"strconv"
 	"strings"
 )
-
-func Max(i, j int) int {
-	if i > j {
-		return i
-	}
-	return j
-}
 
 func InRange(value, lower, upper float64) bool {
 	return value >= lower && value <= upper
@@ -23,12 +16,12 @@ func Lines(str string) (lines []string) {
 }
 
 func Words(str string) []string {
-	var i, j int
+	var j int
 	words := strings.Split(str, " ")
 
 	// Moving all the empty strings to the end of the array while preserving the
 	// order.
-	for i = 0; i < len(words); i++ {
+	for i := range words {
 		if words[i] = strings.TrimSpace(words[i]); i != j && len(words[i]) != 0 {
 			words[i], words[j] = words[j], words[i]
 		}
@@ -51,13 +44,6 @@ func FirstLineOf(file_path string) (string, error) {
 	file_scanner.Scan()
 
 	return file_scanner.Text(), nil
-}
-
-func StartsWith(src, dst string) bool {
-	if len(dst) > len(src) {
-		return false
-	}
-	return src[:len(dst)] == dst
 }
 
 func Float(num string) float64 {
