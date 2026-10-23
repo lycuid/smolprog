@@ -1,3 +1,17 @@
 #!/bin/sh
 
-go clean && go build && sudo make install && go clean
+set -xe
+
+NAME=smolprog
+BIN=$NAME
+PREFIX=${PREFIX:-/usr/local}
+BINPREFIX=$PREFIX/bin
+DESTDIR=${DESTDIR:-}
+
+install() {
+  mkdir -p "$DESTDIR$BINPREFIX" &&
+  strip "$BIN" &&
+  sudo cp -f "$BIN" "$DESTDIR$BINPREFIX/$NAME"
+}
+
+go clean && go build && install && go clean
